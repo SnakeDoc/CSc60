@@ -1,0 +1,193 @@
+<html>
+<head>
+   <title>CSc 60 Assignment 4</title>
+</head>
+<body>
+<small><i>
+Sacramento State CSc 60 Introduction to System Programming in UNIX (Fall 2014)
+<br>Instructor: Weide Chang
+</i></small>
+
+<p>
+<center><big><b>Assignment 4 &nbsp; IPC: Signals</b></big></center></p>
+
+<h3>Functionality</h3>
+<ol>
+<li>
+In the previous assignment synchronization of taking turn to play cannot
+be done but applying frivolous sleep calls to politely "delay" themselves.
+With IPC method <tt>signals</tt>, better synchronization can be achieved.
+<li>
+This assignment is still about child processes playing the sum-to-goal game,
+and the overall game play will look the same as the previous assignment.
+but the parent will use signal <tt>SIGINT</tt> to notify each child to play
+its turn at that time, so a round-robin fair-play sequence can be enforced
+with signals.
+<li>
+The parent and children are to be coded separately in <tt>parent.c</tt>
+and <tt>child.c</tt>.
+<li>
+Whenever a child reaches the goal and exits, the parent will announce this
+result (child PID and the number it has). And the parent will signal all
+processes (including itself) to quit via signal <tt>SIGQUIT</tt>.
+<li>
+All processes (parent and children) should use a handler to handle exiting
+which should show a "Bye-bye! Parent/Child x. PID xxxxx.\n" message.
+</ol>
+
+<h3>Extra Credit Points</h3>
+<ol>
+<li>
+The parent will not interrupt anyone but continue to send signals to those
+that are still playing until all children have done playing.
+<li>
+Then after all child processes are done, the parent shows final results in
+the order of "the 1st-exit-1st-recorded/shown." Show both the PID and sum
+for each.
+<li>
+This means that the parent needs to keep track of children's PID's from
+the gecko in order to skip those who have already finished (no need to
+signal in the round-robin play loop). And during the play loop the parent
+will record the sum as well as the child PID as each finishes.
+</ol>
+
+<h3>Program Code Writing</h3>
+<ol>
+Two two separate C programs: parent.c and child.c are required. As described
+in previous assignments. Modularize programs with subroutines illustrated in
+the example code: MySigIntRoutine, MyExitRoutine, etc.
+</ol>
+
+<h3>Demo Runable</h3>
+<ol>
+<a href=demo>DEMO RUNABLE FILES ARE HERE</a>.
+<br>
+Use shell commands <i>cp</i> and <i>chmod</i> to copy and change to executables
+as described before.
+</ol>
+
+<h3>New System/Library Calls</h3>
+<ol>
+You will need these new ones besides those allowed from the previous assignment:
+<ol>
+<li><b>signal()</b> to register a handler to be called by a signal ("man 7 signal")
+<li><b>atexit()</b> to register a handler to be called when exit()
+<li><b>kill()</b> to send out signals
+<li><b>sleep(1)</b> in the single parent code in the play loop, to view children's
+number-accumulation messages slower.
+<li><b>perror()</b> is optional but useful.
+</ol>
+
+<h3>Helpful Hints</h3>
+<ol>
+<li>
+The example code illustrates well all these mentioned below.
+
+<li>
+All signal names are listed in Unix manual page "man 7 signal." SIGINT,
+SIGQUIT, and SIGCHLD are the ones we use.
+
+<li>
+You must demonstrate the use of these signals and with handlers registered
+(for the bonus version SIGQUIT is not required since all children play to goal,
+and exit themselves). The <i>atexit()</i> must also be used for both the parent
+and child code. It resembles a signal-handler registration.
+
+<li>
+In the bonus version, you will find the limitation of signal-handling routines
+that cannot take arguments or have a return. Therefore, <i>global</i> and
+<i>static</i> variables are needed in order to update and pass information.
+<b>Figure out which must be global or at least static to initialize in a
+handler routine!</b>
+
+<li>
+The number of maximum child processes is 10 (MAX_CHILD) is the size
+of an array that is to be declared since it is needed for child PID's.
+</ol>
+
+<h3>Assignment Turn-in</h3>
+<ol>
+<li>
+Submit your source code the same way as required before in previous
+programming assignments. No E-mail will be accepted, no late turn-ins.
+
+<li>
+Locate a folder "4" in your named folder to place parent.c and child.c
+into it. No other files. For repeating submissions, create new folders
+V2, V3, etc., inside folder "4."
+
+<li>
+Format your code cleanly, put a header/preamble header with your name,
+and put suitable and important comments in code (the grader may understand
+better of your code). Messy code may cause point deduction.
+</ol>
+
+<h3>Child Code Construction (Minimum Version)</h3><pre>
+Preamble: name, program #, course name, etc.
+some include statements
+and 2 global variables to declare
+
+void MySigIntRoutine() { // will it need static vars?
+   ...
+}
+
+void MyExitRoutine() { // print a message of its own process info
+   ...
+}
+
+int main(int argc, char *argv[]) { // argv[1] child #, argv[2] goal #
+   ... local vars ...
+   if(argc != 3) { // why 4? see 5 lines above
+      printf("Child didn't get 3 args!\n");
+      exit(1);
+   }
+   ...
+   while(1) {
+      ... wait for a signal
+   }
+}</pre>
+
+<h3>Parent Code Construction</h3><pre>
+Preamble: name, program #, course name, etc.
+some include statements
+and constant declaration
+
+void MySigChildRoutine() {
+   ...
+   ... show winning child result (child PID and final sum)
+   ... printf("\nParent: proceeds to stop everyone!\n\n");
+   ...
+}
+
+void MyExitRoutine() { // just a msg like basic demo
+   ...
+}
+
+int main (int argc, char *argv[]) {
+   ... local vars
+   ...
+
+   if(argc != 3) {
+      printf("Usage: %s child_number (1~10) goal_number (10~100)\n", argv[0]);
+      exit(1);
+   }
+   ...
+   printf("***Parent (PID %d): forks...\n\n", getpid());
+
+   for(...) { // fork loop
+      ...
+   }
+// give the children a break before starting to play
+   <b>sleep(1);</b> // 1st sleep
+   ...
+   printf("\n***Parent (PID %d): loops to signal children...\n", getpid());
+
+   while(1) {
+      for(...) { // loop thru children
+         ... show a msg: Parent sending signal to child # (PID #)
+         ... send it
+         <b>sleep(1);</b> // 2nd sleep, total 2 in all code
+      }
+   }
+}</pre>
+

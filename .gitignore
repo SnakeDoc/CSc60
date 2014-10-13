@@ -1,0 +1,16 @@
+# Since my binaries typically have no extension,
+#    ie. gcc code.c -o code && ./code
+# it is tough to exclude them from git.
+# So, instead we will create a white-list in the .gitignore
+# by disallowing all, then explicit allow certain files by extension
+# 
+
+*
+!*/
+!*.md
+!*.gitignore
+!*.gitattributes
+!*.c
+!*.txt
+!*.html
+

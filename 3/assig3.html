@@ -1,0 +1,89 @@
+<HTML>
+<HEAD>
+   <TITLE>CSc 60 Assignment 3</TITLE>
+</HEAD>
+<BODY>
+<SMALL><i>
+Sacramento State CSc 60 Introduction to System Programming in UNIX (Fall 2014)
+<br>Instructor: Weide Chang
+</i></SMALL>
+
+<P>
+<center><big><b>
+Assignment 3 &nbsp; Child Process Creation
+</b></big></center></p>
+
+<h3><a href=demo><font color=red>DEMO EXECUTABLES (see runtime.txt)</a></h3></font>
+
+<h3>Implementation</h3>
+
+Write a C program and compile it into a.out that deos the following when run:
+<li>
+The process a.out is given 2 argument (numbers), e.g., a.out 5 100.
+<li>
+It calls fork() the same number of times as the 1st given argument to
+create child processes.
+<li>
+The parent process a.out waits (for any child to exit).
+<li>
+Each child process performs a loop that:
+<ul>
+<li>gets a random integer ranging from 0 to 9
+<li>adds the number to a sum
+<li>displays its process ID and the current sum
+<li>sleeps for 1 second
+<li>loop again, until the accmumulated sum reaching (or over) a supposed
+goal number (100, or, the 2nd argument given to the parent process, a.out).
+</ul>
+<li>
+The child exits using the sum as the return exit code in order to notify
+the parent process.
+<li>
+The parent process then prints out: 1. its process ID, 2. the exiting
+child process ID, 3. the sum the exiting child got.
+<li>
+One by one, all child processes will reach the goal and exit.
+
+<h3>OS Service Calls</h3>
+You will need the system/library calls listed below in your code.
+Therefore, you need to first understand what they do and how they are called.
+Study:
+1. Online unix manual page, 2. Marshall's text, 3. Kerrisk's book,
+4. Online resources such as UNIX Help for Users which is linked from the class
+webpage.
+<ul>
+<li><b>fork()</b> spawning a child process
+<li><b>exit()</b> exiting (termination)
+<li><b>wait()</b> waiting for a (any) child process to exit
+<li><b>atoi()</b> "ascii (string) to integer" conversion
+<li><b>getpid()</b> getting its own process ID
+<li><b>sleep()</b> suspending itself for a number of seconds
+<li><b>srand()</b> seeding the randomization
+<li><b>rand()</b> randomization (getting a random number)
+<li><b>printf()</b> (Yay, printf allowed!)
+<li><b>perror()</b> (handy when errors occur at system calls)
+<li><b>execl()</b> (for bonus part)
+<li><b>sprintf()</b> (for bonus part: "string-printf" to <i>bring</i> integers into string
+</ul>
+
+<h3>Bonus Part (2 extra points)</h3>
+<li>Use the system call <i>execl()</i> to execute child process code
+(to <i>depart</i> from parent code).
+<li>Hint: compile the child code separately to a different executable.
+That is, name it differently (such as b.out) -- and a variable goal number
+can now be supplied to children from parent code (given by the user originally),
+right? How?
+<li>Add to the code such that the parent will be able to force all
+other child processes (as soon as it can) to terminate once receiving
+the sum from the winning child?
+<li>Hint: the parent would keep the child process ID's handy during the
+fork() loop and subsequently <i>signal</i> each child to terminate.
+
+<h3>Turn-in</h3>
+
+<li>
+E-mailing will not be accepted, and no late turn-ins.
+Locate folder "3" in your named folder on host Voyager as before with
+"smbclient" to submit. For repeated submssions make folder "V2," "V3,"
+etc., in folder "3."
+

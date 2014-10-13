@@ -1,0 +1,60 @@
+assig1.txt
+
+Assignment 1, C Pointers, CSc 60, Fall 2014
+
+3 programs about C pointers need to be understood, like
+3 questions Q1, Q2, and Q3:
+   Q1. ptr0.c (target variables: i, j, p, q, and r)
+   Q2. ptr1.c (target variables: p, q, and array x in main())
+   Q3. ptr2.c (target variables: i, j, and p in main())
+
+Please use apply the 32-bit mode of GCC to compile code, e.g.,
+   gcc -m32 ptr0.c
+
+To make sure the size of a pointer is 4 (bytes), try a test.c:
+// test.c
+   #include <stdio.h>
+   main() {
+      printf("size of int * is %i\n", sizeof(int *));
+   }
+
+Run each of the pointer programs to see and get the output.
+Like what's illustrated during class sessions, and in textbook,
+draw a diagram with each of the variable memory location as a
+rectangle box, and follow the changes in the output to fill out
+the boxes as the program statements go.
+I.e.,
+Follow the sequence of code, draw results whenever a statement
+changes the contents of any locations, e.g., label addresses and
+fill out boxes whenever box contents get changed.
+
+Example:
+   // here.c
+   #include <stdio.h>
+   main() {
+      int a, b, *p;             a                   b                   p
+                          addr    content     addr    content     addr    content
+                         83357c8 [   ?   ]   83357c4 [   ?   ]   83357c0 [   ?   ]
+      a = 5;                     [   5   ]           [   ?   ]           [   ?   ]
+      p = &b;                    [   5   ]           [   ?   ]           [83357c4]
+      (and so on...)
+   }
+
+Turn-in: hard copy, hand-written and drawn, or hand-drawn boxes
+mixed with computer printouts is OK.
+
+How to login a Linux host:
+
+Use your ECS network account and Windows "PuTTy" or Mac "terminal" app
+to login one of the Linux hosts designated for our assignment usages.
+
+e.g., Mac terminal command: ssh (your username)@atoz.ecs.csus.edu
+
+From off campus you connect to host titan or athena first, then go
+to one of the assignment-working host with shell command:
+   ssh (your username)@atoz (or sp1/2/3)
+
+Shell command to edit program, e.g., vi my.c
+Shell command to compile program: gcc -m32 my.c
+Shell command to run program: a.out (or ./a.out if . is not in search path)
+
