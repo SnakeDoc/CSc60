@@ -1,0 +1,148 @@
+<HTML>
+<HEAD>
+   <TITLE>CSc 60 Assignment 5</TITLE>
+</HEAD>
+<BODY>
+<SMALL><i>
+Sacramento State CSc 60 Introduction to System Programming in UNIX (Fall 2014)
+<br>Instructor: Weide Chang
+</i></SMALL>
+
+<P>
+<center><big><b>
+Assignment 5 &nbsp; IPC: Pipes
+</b></big></center></p>
+
+<h3>Goal</h3>
+
+<ol>
+<li>Always use <tt>gcc -m32 -Wall (source code)</tt> to seek and eliminate
+any compiler warnings from now on. The "-Wall" option means "warn-all" possible
+errors. This will make good programming practice. From this assignment on,
+compiler warnings will cause points deduction during assignment grading.
+<p>
+<li>The given <tt>doit</tt> shell script is a tool you should use (and modify
+it to your own likings). Adding a source-file name (without extension ".c")
+and it will compile and name the executable accordingly; e.g., <tt>doit parent</tt>
+will use source code "parent.c" to compile into executable "parent."
+<p>
+<li>Write a C programs parent.c and child.c which performs the same
+game-play as described in the previous assignment except that:
+the parent will be the one that distributes random values to child
+processes through "pipes," an <i>Inter-Process Communication</i> method.
+<p>
+<li>All child processes will know where to read from the same pipe to
+retrieve numbers. There must be some synchronization in order to avoid
+"racing" conditions, i.e., whose number is it now in the pipe or whose
+turn is it this time to read it to sum?
+<p>
+<li>A simple way for to distribute numbers via a single pipe to different
+destinations: after placing the number in, send a signal to the one that
+has the current turn. The child will then read the number and sum via its
+own already-registered signal handler. Thus, the same pipe is shared in
+the correct round-robin order.
+<p>
+<li>
+And, whenever a child reaches the goal, it exits with the final sum. The
+parent, in turns, will catch this event via its ownt signal handler that
+handles the event of a child exiting. The parent can than show the result
+and tells everyone to quit (including itself).
+</ol>
+
+<h3>Details</h3>
+
+<ol>
+<li>The parent will first request a <tt>pipe</tt> from the OS. A pipe
+is actually like a file/data buffer with two ends: a <i>reading end</i>
+to read data from, and a <i>writing end</i> to write data into. System
+calls <tt>read</tt> and <tt>write</tt> we used before (to read keyboard
+and display) also apply to these two ends (of course, in different file
+numbers rather the <i>stdin</i> and <i>stdout</i>).
+<p>
+<li>
+Writing to a pipe does not <i>block</i> the process. Reading, however,
+may (similar to reading from the keyboard when nothing typed), if there
+aren't data in the pipe. Not enough data for the number of bytes requested
+in the <i>read()</i> call does not block, instead, the return number of
+the call will be the number of bytes actually read.
+<p>
+<li>A child, once fork-execl-ed, will have the <i>reading end</i> of
+the pipe (in its arguments). The parent uses the <i>writing</i> end of
+the pipe. This is a <i>one-way</i> pipe.
+<p>
+<li>Signals are still be needed in order for a child to read the pipe
+at the right time after the parent writes a number into the pipe and
+signals it. A child once reaching the goal number will exit with the
+sum (for the minimum assignment requirement). The exit event serves
+as the signal for the parent to get its result, and stop everyone from
+continuing (including itself).
+</ol>
+
+<h3>Challenges</h3>
+
+<ol>
+<li>Reading a pipe may <i>block</i> the process if there're no data
+at all. (Not enough data to match the size of the read request doesn't
+block, check the return number from the <i>read()</i> call for the number
+of bytes actually read). A pipe <i>buffers</i> data until being read.
+A pipe may get too full or become broken -- signal <tt>SIGPIPE</tt>.
+<p>
+<li>Can using multiple pipes help the parent to distribute numbers
+without signaling? That is, if each child is given a private pipe
+to read? Can the play turns still be enforced fairly? (They still
+use exit calls to return sums.)
+<p>
+<li>Can using <i>two-way</i> pipes help? This means the parent will
+prepare two pipes for each child. The child will write back the
+updated sum of its round to the parent which will read and thus
+synchronize the play turn. (The parent may be blocked until the
+child finishes its current turn, to proceed to the next child.)
+<p>
+<li>The parent can record the number of rounds and the final sum as
+each child reaches the goal, and can thus continue to serve the
+rest until all have finished.
+<p>
+<li>The parent shows all results after all children have done playing.
+What is to be show are the child PID and its sum -- in the order of
+the original winning sequence during the play loop. (1st-win-1st-recorded,
+see the extra-credit demo.)
+<p>
+<li>As said, <i>reading a pipe</i> may block (when there aren't
+any data), and this can actually enforce the orderly round-robin
+fair play since the parent will wait for the currently-playing child
+to write back after playing its turn, before serving the next child.
+<p>
+<li>Extra credit (2 points) will be given if no signals are needed when
+using two-way pipes as stated above. 
+</ol>
+
+<h3>OS Service Calls</h3>
+The calls that are allowed to use in code are listed below (signal
+calls allowed for minimum/non-extra credit requirement):
+<ul>
+<li><b>pipe()</b> to request for pipes
+<li><b>read()</b> to read from a pipe
+<li><b>write()</b> to write to a pipe
+<li><b>close()</b> to close a pipe
+<li><b>printf()</b> allowed only to show running status
+<li><b>atoi()</b> to convert argument strings to numbers
+<li><b>sprintf()</b> to build strings to pass as arguments
+<li><b>srand()</b> to seed randomization
+<li><b>rand()</b> to get a random number
+<li><b>exit()</b> (child exits quietly in extra-credit version)
+<li><b>wait()</b> (extra-credit part can do without, but an etiquette to receive deaths)
+</ul>
+
+<h3>Turn-in</h3>
+
+<ol>
+<li>Turn in your source code the same way as you were required to do
+for other programming assignments. E-mailing will not be accepted, no
+late turn-ins.
+<p>
+<li>Find folder "5" in the folder of your name, to put your source-code
+files (only): parent.c and child.c.
+<p>
+<li>Write code with a clean format, preamble/header, and put comments
+at places that would help with grading (your reasoning).
+</ol>
