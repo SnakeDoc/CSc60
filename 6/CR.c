@@ -122,8 +122,6 @@ int main( int argc, char* argv[] )
    }
    sprintf( write_pipe_str, "%d", pipes[1] );
 
-   srand( video_key );
- 
    sprintf( video_key_str, "%d", video_key );
    sprintf( c_key_str, "c_%d", video_key );
    sprintf( r_key_str, "r_%d", video_key );

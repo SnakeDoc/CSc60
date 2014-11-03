@@ -88,6 +88,9 @@ int main( int argc, char* argv[] )
    PutChar( disp_row, disp_col + 2, col + 48 );
    sem_post( video_sem );
 
+   // seed random gen
+   srand( getpid() );
+
    // play when it's our turn to go
    while( 1 ) {
 
