@@ -1,0 +1,205 @@
+<html><head><title>CSc 60 Assignment 6 Threads and Semaphores</title></head>
+<body>
+<small><i>
+Sacramento State CSc 60 Introduction to System Programming in UNIX
+<br>Sections: 2 and 3 (Fall 2014)
+</i></small>
+
+<p>
+<center><big><b>Assignment 6 &nbsp; Threads and Semaphores</b></big></center></p>
+
+<h3>What is a Thread?</h3>
+<ol>
+<li>
+In simple words, a <i>thread</i> is a code thread, a program
+module like a separate routine but can be running independently.
+Hence, sometimes it is termed a <i>light-weight</i> process.
+<p>
+<li>
+A process can create several threads to run in parallel and they
+share the same global-data space. This convenient arrangement
+make communication easy. Still, to avoid racing/collision condition
+during accessing global data, some synchronization method is needed.
+<p>
+<li>
+Since threads are all within a single process, the code be cannot
+distribute over several hosts (as several separate processes).
+<p>
+<li>
+Sample program on how to create threads and use a semaphore to
+<i>guard</i> data are illustrated in <a href=ThreadSemaExample>Thread
+and Semaphore Example</a>.
+<p>
+</ol>
+
+<h3>What is a Semaphore?</h3>
+<ol>
+<li>
+A semaphore is like a <i>flag</i> that can be set up to control threads
+(or processes) by stopping them or allowing to proceed the next instruction.
+<p>
+<li>
+A semaphore has a <tt>control count</tt></b> that is initially given to
+a certain value requested by a process with a syscall <tt>sem_init()</tt>
+for inter-thread usage (or <tt>sem_open()</tt> for inter-process usage).
+A semaphore ID will be the return of the syscall to be subsequently among
+multiple threads (or processes).
+<p>
+<li>
+The syscalls <tt>sem_wait()</tt> and <tt>sem_post()</tt> are the actual
+usage of a semaphore. As a thread (or process) calls sem_wait(), the OS
+checks if the control count in the semaphore is greater than zero. If so,
+the OS downcount it and let the thread (or process) continue (in code).
+Otherwise (control count is already at 0), the thread (or process) will
+be suspended (put into a waiting queue) until some other thread (or process)
+eventually calls sem_post() to release it.
+<p>
+<li>
+As a thread (or process) calls sem_post(), the OS checks if there have
+been processes previous suspended (by calling sem_wait() like above) and
+If so, the OS releases a waiting process (FIFO) so it can continue within
+its code execution. Otherwise (they have been no waiting processes), the
+OS will just upcount the control count in the semaphore.
+<p>
+<li>
+If the starting control count of the semaphore was request with 1,
+the semaphore acts like a control for <i>mutual exclusion</i> (mutex).
+As all threads (or processes) calls sem_wait() and then sem_post() to
+synchronize the access of "guarded" critical data between the pair of
+syscalls. The example would be racing/collision avoidance over the
+access (read/write) of global data among threads.
+<p>
+<li>
+Another way to see how this "mutex" works is that since the control
+count starts with 1, it can only be downcounted to 0 and start to
+<i>block</i> any new threads (or processes) that come to call sem_wait().
+And, the control count can only be count up to 1 (not higher) since each
+sem_post() call (upcount) must be preceeded by a sem_wait() call (downcount).
+<p>
+
+</ol>
+
+<h3>Display-Cursor Control</h3>
+<ol>
+In the <a href=CursorControlExample>Cursor Control Example</a> folder, code to
+control the location of the display cursor is demonstrated. See below for the
+requirement of re-coding from the example code into more useful modular routines.
+<p>
+</ol>
+
+<h3>Assignment Description</h3>
+<ol>
+<li>
+Write a single program (<tt>CR.c</tt>) that can run like the demo (CR).
+Use a single thread as the creations of two running threads: Chaser and Runner.
+<p>
+<li>
+Two semaphores are needed are to guard the use of the display (otherwise,
+racing to control cursor will happen) as well as the global data associated
+with the current positions of both C and R. The main thread (like a parent)
+will also use the semaphore to access the global data to check if a collision
+has arrived in order to show the result and end the run.
+<p>
+<li>
+Make useful subroutines listed below to modularize your cursor-control
+functions (see the cursor-control example code to do this):
+<ol>
+<li>PutChar(): show a letter
+<li>CursorHome(): position curosr to top-left
+<li>CursorOff(): hide cursor
+<li>CursorOn(): show (restore) cursor
+<li>ClearScr(): clear the whole screen
+<li>InitScr(): arrange the box
+<li>FlashScr(): flash the scrren
+</ol>
+<p>
+<li>
+In the assignment webpage, the <tt>demo</tt> folder has an executable
+<tt>CR</tt> (short for Chaser and Runner). When run, they seem to be
+animated letter "C" for <i>Chaser</i> and "R" for <i>Runner</i>.
+<p>
+<li>
+A <a href=CR-skeleton.txt>CR skeleton code</a> has the <i>main()</i>
+thread (as the parent) that creates two <i>Child</i> threads to each
+is give a different pointer to point to their individual information:
+<ol>
+<li>a single character C or R: <tt>symbol</tt>
+<li>initial position coordinate: <tt>row</tt> and <tt>col</tt>
+<li>where on the screen to show current position: <tt>show_r</tt>
+    and <tt>show_c</tt>
+</ol>
+<p>
+<li>
+There will have to be a semaphore <tt>sem_video</tt> to access the
+display mutually and exclusively. So, any program statements about
+writing to the display should be placed between sem_wait() and sem_post()
+syscalls.
+<p>
+<li>
+Similarly, to read/write global data, another semaphore <tt>sem_data</tt>
+is needed.
+<p>
+
+</ol>
+
+<h3>Extra Credit</h3>
+<ol>
+<li>
+Use processes to do the same CR runs instead. Each process does same
+duties like in threads: each child process does its own randomization,
+cursor control, show symbol, and show/update its new location as well
+as location data. The parent prepare things, create children, monitor
+location updates, and show the result and stop the run upon collision.
+<p>
+<li>
+The access to the video (cursor control and print out a character)
+needs a semaphore used among processes. The creation and access of
+a semaphore in process environment is a little different from threads.
+Please see <a href=ProcessSemaExample>Process Semaphore Example</a>.
+<li>
+<p>
+A pipe is needed for data transfers since that is the only channel we
+know to enable data transmissions among processes (so far). The parent
+creates a shared pipe for child processes to write back their new
+positions. The pipe, designated symbol, and initial position are given
+to a child process during the process creation (as arguments).
+<p>
+<li>
+The parent will request two more semaphores besides the one for video,
+in order to post them (while a child waits on a designated semaphore)
+in a round-robin play sequence. Otherwise, one child may play "faster"
+than the other. (With multipipes it won't solve this "too fast" issue,
+and, still, a semaphore is needed.)
+<p>
+<li>
+Also, with this additional individual semaphore (parent posts, child
+waits), the timing to read/write the shared pipe can be done correctly:
+A child writes its updated new location information into the pipe during
+its turn playing. The parent process reads the pipes knowing which child
+the updated information is from. And once a turn is played by both child
+processes, compare locations read for collision (in its loop).
+</ol>
+
+<h3>Use These Sys/Lib Calls Only</h3>
+<ol>
+<li>for randomness: <tt>getpid(), srand(), rand()</tt>
+<li>for cursor control: <tt>write()</tt>, <tt>strlen()</tt>, <tt>sprintf()</tt>
+<li>for delay: <tt>usleep()</tt>
+<li>for semaphores: <tt>sem_init(), sem_wait(), sem_post()</tt>
+<li>for threads: <tt>pthread_attr_init(), pthread_create()</tt>
+<li>use only at the end (show collision): <tt>printf()</tt>
+</ol>
+
+<h3>Assignment Turn-in</h3>
+<ol>
+<li>
+Submit your single source code file (CR.3) in the designated folder as before.
+No E-mail or late turn-ins. If repeating to submit, use new filenames such as:
+CR-2.c, CR-3.c, etc.
+<p>
+<li>
+Clean up your code with a clean format, preamble header, and comments where
+suited (and can help the grader to understand your code). Do not mess with your
+code and submision location since this may cause point deduction.
+</ol>
+
