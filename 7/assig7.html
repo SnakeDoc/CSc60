@@ -1,0 +1,115 @@
+<html><head><title>CSc 60 Assignment 7</title></head>
+<body>
+<small><i>
+Sacramento State CSc 60 Introduction to System Programming in UNIX (Fall 2014)
+<br>Instructor: Weide Chang
+</i></small>
+
+<p>
+<center><big><b>Assignment 7 &nbsp; IPC: Message Queues (Alphabet Derby)</b>
+</big></center></p>
+
+<h3>Assignment Description</h3>
+<ol>
+<li>
+To emphasize the IPC an additional channel called message queues is
+exercised in this assignment.
+<p>
+<li>
+The assignment is called <b>AlphaDerby</b>, and in the "demo" folder
+several different versions are to be copied and run by yourself.
+<p>
+<li>
+The parent process creates 26 child processes among which each moves an
+alphabet letter 'A' to 'Z' on a separate row across the screen. Each move
+is coupled with a random delay (<i>0.05, 0.1, 0.15, or 0.2</i> second).
+So, which letter wins is random. The results will be printed out by the
+parent process once all children have reached the end goal position.
+<p>
+<li>
+Your turn-in code should be able to compile and run with the matching
+result of what AlphaDerby does in the <i>minimum</i> version.
+<p>
+<li>
+The extra-credit version earns 2 more points. You need to write <tt>keypoll.c</tt>
+to compile into executabl <tt>keypoll</tt> as a child process of <tt>parent.c</tt>.
+It will first run and let the user pick an alphabet to see if it will win.
+The picked alphabet is then returned to the parent process via an exit number.
+The parent process then shows <i>"GOOD LUCK"</i> at that character row, and
+subsequently shows if the player wins.
+<p>
+<li>
+The top 5 winning alphabets will also be marked on the screen by the parent
+process on the rightmost column at the end (see how the demo runs).
+<p>
+<li>
+Remember to delete your old semaphores and message queues in the system:
+<tt>ipcs; ls -l /dev/shm</tt> to show them. Issue <tt>ipcrm</tt> and <tt>rm
+/dev/shm/*</tt> to remove those that belong to you. There is a Perl script
+<tt>cleanup.pl</tt> that automatically clean them. You can copy it over and
+run it.
+<p>
+</ol>
+
+<h3>Program Examples</h3>
+<ol>
+<li>
+Look into the <tt>MsgExample1/2/3</tt> folders for example programs on how
+to request for a message queue and use it among processes. See the
+<tt>code-skeleton</tt> folder for the code structure of the assignment.
+<p>
+<li>
+The parent is the process that prepares a semaphore for the video access sharing,
+and a message queue for message passing among all processes. The access of the
+message queue requires a process to know the message queue number (ID) first,
+and each message sent will need a designated recipient number in it (we can use
+the unique PID for this purpose). Other data items in the message is to be freely
+defined as a data structure as needed.
+<p>
+<li>
+We will also learn how to combine multiple source-code files in compilation via
+a <tt>Makefile</tt> and the shell command <tt>make</tt> will read this file and
+link all parts into compilation of executables specified by the rules scripted
+in the Makefile. This is the beginning of a project builder (later called IDE
+with GUI representation).
+<p>
+<li>
+The <tt>common.h</tt> has commonly-used includes, constants, types, and
+prototypes. The <tt>common.c</tt> has commonly-used functions (prototyped
+in common.h) by both parent.c and child.c (and keypoll.c if used).
+<p>
+</ol>
+
+<h3>Main Syscalls</h3>
+<ol>
+<li><i><b>msgget()</i></b> to request for a message queue
+<li><i><b>msgsnd()</i></b> to send a message to the queue
+<li><i><b>msgrcv()</i></b> to receive a message from the queue
+<li><i><b>msgctl()</i></b> to remove a message queue
+<li><i><b>sem_open()</i></b> to request for a semaphore (process)
+<li><i><b>sem_wait()</i></b> to wait on a semaphore (process)
+<li><i><b>sem_post()</i></b> to post to a semaphore (process)
+<li><i><b>sem_unlink()</i></b> to remove a semaphore (process)
+</ol>
+
+<h3>Other Sys/Lib Calls</h3>
+<ol>
+Others used ones are: <i>wait(), write(), execl(), printf(),
+sprintf(), perror(), exit(), srand(), rand(), getpid(),
+getppid(),</i> some more used in the "keypoll.c" that you
+need to code from examples given in the <tt>KeyPoll</tt>
+folder as part of what is required for extra-credit points.
+</ol>
+
+<h3>Assignment Turn-in</h3>
+<ol>
+<li>
+Submit your source-code files the same way as required before. No E-mail
+will be accepted, and no late turn-ins.
+<p>
+<li>
+Clean up your code with a clean format, preamble header, and comments
+where suited (and can help the grader to understand your code). Do not
+mess with your code since it may cause point deduction. You're forewarned.
+</ol>
+
