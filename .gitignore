@@ -11,6 +11,8 @@
 !*.gitignore
 !*.gitattributes
 !*.c
+!*.h
 !*.txt
 !*.html
+!Makefile
 
