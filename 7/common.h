@@ -22,6 +22,7 @@
 #include <semaphore.h>
 #include <signal.h>
 #include <termios.h>
+#include <time.h>
 
 #include <sys/time.h>
 #include <sys/stat.h>

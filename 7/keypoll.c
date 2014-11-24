@@ -79,7 +79,8 @@ int main( int argc, char* argv[] )
     if ( ch == ' ' ) {
       // i'll pick for you
 
-        srand( getpid() );
+        // be more random
+        srand( time(NULL) * getpid() );
         ch = (char) (rand() % 26) + 64;
 
         char sentence[40];

@@ -36,7 +36,8 @@ int main( int argc, char* argv[] )
         exit(1);
     }
 
-    srand( getpid() );
+    // be more random
+    srand( time(NULL) * getpid() );
 
     for ( i = 1; i <= MAX_COL; i++ ) {
         PutChar( row, i, character, sem_video );
