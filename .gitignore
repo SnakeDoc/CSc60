@@ -15,4 +15,5 @@
 !*.txt
 !*.html
 !Makefile
+!*.pl
 
