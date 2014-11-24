@@ -29,7 +29,7 @@ int main( int argc, char* argv[] )
     }
 
     character = msg.character;
-    sem_video_str = msg.sem_video_str;
+    strcpy( sem_video_str, msg.sem_video_str );
     row = msg.row;
 
     sem_video = sem_open( sem_video_str, O_CREAT );
@@ -44,8 +44,8 @@ int main( int argc, char* argv[] )
         PutChar( row, i, character, sem_video );
         usleep( USEC * ( rand() % 4 ) );
         if ( i == MAX_COL ) break;
-        PurChar( row, i, ' ', sem_video );
+        PutChar( row, i, ' ', sem_video );
     }
 
-    exit (int)character;
+    exit( (int)character );
 }

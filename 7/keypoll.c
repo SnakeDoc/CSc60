@@ -12,16 +12,39 @@
 
 #include "common.h"
 
+/* prototypes */
+char KeyPoll( void );
+
 int main( int argc, char* argv[] )
 {
 
+    msg_t msg;
+    int qid;
+    sem_t *sem;
+    char sem_str[20];
+
+    qid = atoi( argv[1] );
+
+    if ( -1 == msgrcv( qid, (void *)&msg, MSG_SIZE, getpid(), 0 ) ) {
+        perror( "msgrcv: " );
+        exit(1);
+    }
+
+    strcpy( sem_str, msg.sem_video_str );
+
+    sem = sem_open( sem_str, O_CREAT );
+    if ( sem == SEM_FAILED ) {
+        perror( "semaphore: " );
+        exit(1);
+    }
+
     printf( "Pick a character from the alphabet\n" );
     printf( " 5 seconds !!" );
-    fflush(OUT);
+    fflush( stdout );
 
     int i;
     char ch;
-    for ( i = 5;, i > 0; i-- ) {
+    for ( i = 5; i > 0; i-- ) {
         PutChar( 2, 2, i + 48, sem );
         sleep(1);
         ch = KeyPoll();
@@ -96,7 +119,7 @@ char KeyPoll()
     // poll stdin, this will change my_fds and my_tv
     // select: 1 channel to poll, a set of read-fds, a set of write-fds,
     // a set of except-fds, and time value
-    select( 1, &my_fds, IN, IN, &my_tv );
+    select( 1, &my_fds, 0, 0, &my_tv );
 
     // if flag in my_fds set, a key was pressed
     if ( FD_ISSET( IN, &my_fds ) ) {

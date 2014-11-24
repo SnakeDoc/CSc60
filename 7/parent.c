@@ -13,7 +13,8 @@
 #include "common.h"
 
 /* prototypes */
-void child_handler( void );
+void child_handler();
+void exit_handler();
 
 sem_t *sem_video;
 char video_key_str[8];
@@ -64,7 +65,7 @@ int main( int argc, char* argv[] )
             msg.recipient     = (long int) pid;
             msg.character     = character;
             msg.row           = ((int)character - 64);
-            msg.sem_video_str = video_key_str;
+            strcpy( msg.sem_video_str, video_key_str );
 
             if ( -1 == msgsnd( qid, (void *)&msg, MSG_SIZE, 0 ) ) {
                 perror( "msgsnd: " );

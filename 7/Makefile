@@ -15,7 +15,7 @@ MODEL = -m32
 
 CFLAGS = $(MODEL) -Wall    # *.c, and compiler flags
 LFLAGS = $(MODEL)          # *.o, and linker flags
-LIBS = lrt                 # linking real-time library
+LIBS = -lrt                # linking real-time library
 
 # ----------------------------------------------------
 
@@ -33,4 +33,7 @@ parent: parent.o common.o
 
 child: child.o common.o
 	$(CC) $(LFLAGS) -o $@ child.o common.o $(LIBS)
+
+keypoll: keypoll.o common.o
+	$(CC) $(LFLAGS) -o $@ keypoll.o common.o $(LIBS)
 

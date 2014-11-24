@@ -21,7 +21,9 @@
 #include <fcntl.h>
 #include <semaphore.h>
 #include <signal.h>
+#include <termios.h>
 
+#include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/types.h>
@@ -45,12 +47,12 @@ typedef struct {
 #define MSG_SIZE ( sizeof( msg_t ) - sizeof( long int ) )
 
 /* common routine prototypes */
-void PutChar( int, int, char, *sem_t);
-void ClearScr( *sem_t );
-void CursorOff( *sem_t );
-void CursorOn( *sem_t );
-void FlashScr( *sem_t );
-void InitScr( *sem_t );
+void PutChar( int, int, char, sem_t * );
+void ClearScr( sem_t * );
+void CursorOff( sem_t * );
+void CursorOn( sem_t * );
+void FlashScr( sem_t * );
+void InitScr( sem_t * );
 
 #endif
 
