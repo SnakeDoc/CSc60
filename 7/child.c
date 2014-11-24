@@ -18,23 +18,21 @@ int main( int argc, char* argv[] )
     msg_t msg;
     int qid, row, i;
     char character;
-    char sem_video_str[20];
     sem_t *sem_video;
 
     qid = atoi( argv[1] );
-
+    
     if ( -1 == msgrcv( qid, (void *)&msg, MSG_SIZE, getpid(), 0 ) ) {
-        perror( "msgrcv: " );
+        perror( "msgrcv" );
         exit(1);
     }
 
     character = msg.character;
-    strcpy( sem_video_str, msg.sem_video_str );
     row = msg.row;
-
-    sem_video = sem_open( sem_video_str, O_CREAT );
+    
+    sem_video = sem_open( msg.sem_video_str, O_CREAT );
     if ( sem_video == SEM_FAILED ) {
-        perror( "semaphore: " );
+        perror( "child semaphore" );
         exit(1);
     }
 

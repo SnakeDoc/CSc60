@@ -23,10 +23,12 @@ int main( int argc, char* argv[] )
     sem_t *sem;
     char sem_str[20];
 
+    char str[40]; // general purpose string
+
     qid = atoi( argv[1] );
 
     if ( -1 == msgrcv( qid, (void *)&msg, MSG_SIZE, getpid(), 0 ) ) {
-        perror( "msgrcv: " );
+        perror( "msgrcv" );
         exit(1);
     }
 
@@ -34,19 +36,36 @@ int main( int argc, char* argv[] )
 
     sem = sem_open( sem_str, O_CREAT );
     if ( sem == SEM_FAILED ) {
-        perror( "semaphore: " );
+        perror( "semaphore" );
         exit(1);
     }
 
-    printf( "Pick a character from the alphabet\n" );
-    printf( " 5 seconds !!" );
-    fflush( stdout );
+    CursorOff( sem );
+
+    sem_wait( sem );
+
+    sprintf( str, "\033[%d;%dH", 1, 1 );
+    write( OUT, str, strlen(str) );
+    sprintf( str, "Pick a character from the alphabet" );
+    write( OUT, str, strlen(str) );
+
+    sprintf( str, "\033[%d;%dH", 2, 2 );
+    write( OUT, str, strlen(str) );
+    sprintf( str, "5 seconds !!" );
+    write( OUT, str, strlen(str) );
+
+    sem_post( sem );
 
     int i;
+    int j = 5;
     char ch;
-    for ( i = 5; i > 0; i-- ) {
-        PutChar( 2, 2, i + 48, sem );
-        sleep(1);
+    // increase keypoll sensitivity -- check 4 times a second
+    for ( i = 20; i > 0; i-- ) {
+        if ( (i % 5) == 0 ) {
+            PutChar( 2, 2, j + 48, sem );
+            j--;
+        }
+        usleep( USEC );
         ch = KeyPoll();
         if ( ch != ' ' && (int)ch > 64 && (int)ch < 123 ) {
             if ( (int)ch > 90 ) {
@@ -56,7 +75,6 @@ int main( int argc, char* argv[] )
         }
     }
 
-    char str[20];
     sprintf( str, "\033[%d;%dH", 2, 2 ); // will position cursor
     if ( ch == ' ' ) {
       // i'll pick for you
@@ -64,36 +82,62 @@ int main( int argc, char* argv[] )
         srand( getpid() );
         ch = (char) (rand() % 26) + 64;
 
-        char sentence[20];
-        sprintf( sentence, " 0 seconds !! I've picked for you:  " );
+        char sentence[40];
+        sprintf( sentence, "0 seconds !! I've picked for you:" );
         sem_wait( sem );
 
         write( OUT, str, strlen(str) ); // position cursor
         write( OUT, sentence, strlen(sentence) );
 
         sem_post( sem );
-        for ( i = 0; i < 5; i++ ) {
-            PutChar( 2, strlen(sentence), ch, sem );
-            usleep( USEC );
-            PutChar( 2, strlen(sentence), ' ', sem );
+
+        sprintf( str, "\033[%d;%dH", 2, (strlen(sentence) + 3) );
+        char space = ' ';
+
+        sem_wait( sem );
+        for ( i = 0; i < 15; i++ ) {
+            write( OUT, str, strlen(str) );
+            write( OUT, &space, 1 );
+
+            usleep( USEC * 2 );
+
+            write( OUT, str, strlen(str) );
+            write( OUT, &ch, 1 );
+
+            usleep( USEC * 2 );
         }
+        sem_post( sem );
     } else {
       // you picked
-        char sentence[20];
-        sprintf( sentence, " 0 seconds !! You've picked:  " );
+        char sentence[40];
+        sprintf( sentence, "0 seconds !! You've picked:" );
         sem_wait( sem );
 
         write( OUT, str, strlen(str) ); // position cursor
         write( OUT, sentence, strlen(sentence) );
 
         sem_post( sem );
-        for ( i = 0; i < 5; i++ ) {
-            PutChar( 2, strlen(sentence), ch, sem );
-            usleep( USEC );
-            PutChar( 2, strlen(sentence), ' ', sem );
+
+        sprintf( str, "\033[%d;%dH", 2, (strlen(sentence) + 3) );
+        char space = ' ';
+
+        sem_wait( sem );
+        for ( i = 0; i < 7; i++ ) {
+           
+            write( OUT, str, strlen(str) );
+            write( OUT, &space, 1 );
+
+            usleep( USEC * 2 );
+           
+            write( OUT, str, strlen(str) ); 
+            write( OUT, &ch, 1 );
+
+            usleep( USEC * 2 );
         }
+        sem_post( sem );
     }
-    return (int)ch;
+    usleep( USEC * 10 );
+    exit ((int)ch);
 }
 
 char KeyPoll()

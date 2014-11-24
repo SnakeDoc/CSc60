@@ -71,12 +71,19 @@ void FlashScr( sem_t *sem )
 void InitScr( sem_t *sem )
 {
     int i;
+    char ch;
 
     CursorOff( sem );
     ClearScr( sem );
 
     for ( i = 1; i < MAX_ROW + 1; i++ ) {
         PutChar( i, MAX_COL, '.', sem );
+    }
+
+    i = 1;
+    for ( ch = 'A'; ch <= 'Z'; ch++ ) {
+        PutChar( i, 1, ch, sem );
+        i++;
     }
 
 }
