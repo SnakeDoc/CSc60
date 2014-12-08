@@ -103,6 +103,7 @@ int main( int argc, char* argv[] )
             perror( "server shmget alphabet" );
             exit(1);
         }
+ 
         // attach to shared memory
         if ( ( infos[i] = (info_t *)shmat( shmids[i], 0, 0 ) ) 
                                 == (info_t *) -1 ) {
@@ -132,6 +133,7 @@ int main( int argc, char* argv[] )
             execl( "./alphabet", "alphabet", str, NULL );
         }
         i++;
+        usleep( USEC );
     }
 
     // ensure we always cleanup
@@ -143,19 +145,20 @@ int main( int argc, char* argv[] )
 
     printf( "\n    >>>>>> Client picked '%c' <<<<<<\n", info_c->alphabet );
 
-    sleep( USEC * 6 );
+    usleep( USEC * 6 );
 
     ClearScr( sem_video );
     InitScr( sem_video );
 
     // On your marks!
-    sleep( USEC * 3 );
+    usleep( USEC * 3 );
     // Get Set!
-    sleep( USEC * 3 );
+    usleep( USEC * 3 );
     // Go!
     for ( i = 0; i < 26; i++ ) {
         infos[i]->start = 1;
     }
+    info_c->start = 1;
 
     // loop and display children updates
     //   also update client with new positions

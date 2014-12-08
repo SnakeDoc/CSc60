@@ -30,7 +30,7 @@ int main( int argc, char* argv[] )
     // be more random
     srand( time(NULL) * getpid() );
 
-    while ( my_info->start == 0 ) sleep( USEC );
+    while ( my_info->start == 0 ) usleep( USEC );
 
     for ( i = 1; i <= MAX_COL; i++ ) {
         usleep( USEC * ( rand() % 4 ) );

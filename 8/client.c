@@ -83,6 +83,8 @@ int main( int argc, char* argv[] )
     // inform server of player choice
     my_info->alphabet = player;
 
+    while ( my_info->start == 0 ) usleep( USEC );
+
     // character '<' is the termination condition
     //   signifying the race has concluded and we
     //   can stop looping
@@ -104,7 +106,7 @@ int main( int argc, char* argv[] )
             }
             sem_post( sem_video );
         }
-
+        usleep( USEC );
     }
 
     // did we win any points?
