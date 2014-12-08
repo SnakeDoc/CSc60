@@ -1,0 +1,144 @@
+<html><head><title>CSc 60 Assignment 10</title></head>
+<body>
+<small><i>
+Sacramento State CSc 60 Introduction to System Programming in UNIX (Fall 2014)
+</i></small>
+
+<p>
+<center><big><b>Assignment 8 &nbsp; IPC: Shared Memory</b></big></center></p>
+
+<h3>What is Shared Memory IPC?</h3>
+<ol>
+<li>
+A shared memory service is an IPC method the OS provides to allocated
+a segment of memory that can be directly accessed by multiple processes
+- similar to global data accessible by multiple threads running in a single
+process. Memory sharing is a simple idea, easy to understand, and favorable
+to the access speed. The drawbacks are: 1, it is not immune to racing
+conditions; and 2, it is still restricted within a single host, not over
+a separate host on a computer network.
+<p>
+<li>
+As illustrated in example folders, the server (parent) process requests
+<i>shared memory segments</i> via <tt>semget()</tt> syscalls in which
+a <i>key_t key</i> (an integer) and a size (in bytes) are needed. The OS
+will then allocate the sharable memory and return a <i>memory ID</i>
+to be used in another syscall <tt>shmat()</tt> to attach the memory to a
+local character pointer or be type-cast to other types defined in programs.
+Subsequent read/write operations are then done via the pointer.
+<p>
+<li>
+To close (return) the allocated shared-memory segment, the original process
+that requested it should issue a <tt>shmctl()</tt> syscall with the memory
+ID in the arguments.
+<p>
+<li>
+In this assignment each alphabet process updates its current column position
+in the shared memory (and sleep for a period), the server process loops to
+read each position (without sleep). So, updated positions will be read
+correctly.  Therefore, with a semaphore to control the data access between
+each alphabet and server processes is not needed. (Using semaphores does not
+change the outcome.) Therefore, only the video semaphore is needed.
+<p>
+</ol>
+
+<h3>Assignment Description</h3>
+<ol>
+<li>
+In the assignment folder, the example folders demonstrate syscalls to
+<i>request</i> segments of shared memory and <i>attach</i> them among
+processes.
+<p>
+<li>
+Shared memory segments should be reguested by the server process and
+given to alphabet processes to use. Each alphabet process can thus know
+the information it needs. Each alphabet process also updates its current
+column position into the shared-memory segment for the server to read.
+<p>
+<li>
+Copy and run the <i>minimum</i> demo. The runtime of your programs must
+match the demo which is very similar to the previous assignment, except
+that the server process, after creating all alphabets, should proceed to
+another loop to read their column positions. And, as each alphabet reaches
+the finish line, the server displays a placement number at the rightmost
+column on the row of that alphabet. The top 5 places have an extra 3
+asterisk symbols displayed after the number. The server ends this loop
+when all 26 alphabet processes have reached the finish line.
+<p>
+<li>
+No message passing is used. Use the shared-memory IPC for all information
+exchanges, and there is a single semaphore for video display.
+<p>
+<li>
+See the <i>extra-credit</i> demo. An extra credit (2 points) to incorporate
+a <tt>client.c</tt> program that can display/view the progress of the race
+from a different terminal. The <i>client</i> first draws out the finish-line
+dots and then loop to access the shared memory to update the display to follow
+the progress of the race.
+In order to pass the shared-memory ID, use shell command <tt>./client (shared
+memory ID)</tt> (so the ID will be in the string form of <i>argv[1]</i>).
+<p>
+<li>
+See the <i>extra-credit-2</i> demo for a level-2 extra credit (another 2
+points), which first lets the client pick a winner via a <tt>keypoll</tt>
+process. The picked letter is displayed on the client site (the "GOOD LUCK"
+message) and passed to the server process via the shared memory. The server
+will then start the race, and at the end the server returns the result of
+the points won or lose, and the client site displays that number. The logical
+rationale of a game play like this is that there can be multiple clients (so
+each deals its local notifications to display), and the single server does
+all the point calculations and return them.
+<p>
+<li>
+The program <i>keypoll.c</i> has its own "include" statements and exits
+with the ASCII number of the picked alphabet. Only a single occurence of
+the <tt>wait()</tt> syscall is allowed in all code, and it is for the
+client.c to get the picked letter.
+<p>
+<li>
+The shared memory is used to let each of the 26 alphabet processes access
+its information: symbol and row number, and semaphore information. The
+shared memory is also updated by each alphabet process for its current
+column position after displaying its symbol.
+<p>
+<li>
+With viewing the race from a separate shell being the <i>client</i> site,
+the race conducted by the server and its alphabet processes constitute the
+<i>server</i> site.
+<p>
+<li>
+Do not use any syscalls for IPC signals, pipes, or message passing. The
+only "wait-exit" allowed is in the keypoll feature to achieve the level-2
+extra credit.
+<p>
+</ol>
+
+<h3>New System Calls</h3>
+<ol>
+You will need these new ones (see how they are used in given examples):
+<li><ttb>shmget()</tt> to request/allocate a sharable memory segment.
+<li><ttb>shmat()</tt> to attach a sharable memory segment onto a local
+    <i>char</i> pointer.
+<li><tt>shmctl()</tt> to remove a sharable memory segment.
+</ol>
+
+<h3>Assignment Turn-in</h3>
+<ol>
+<li>
+Submit your source code the same way as required before in previous
+programming assignments. No E-mail will be accepted, no late turn-ins.
+<p>
+<li>
+Place to your designated folder only source files:
+<i>server.c, alphabet.c, common.c, common.h, and Makefile</tt> (plus
+client.c and keypoll.c for extra credits).</i>
+DO NOT put any other files. If repeated submissions, make a new folder
+inside this folder and name it <tt>V2</tt> (version 2), <tt>V3</tt>, etc.
+<p>
+<li>
+Clean up your code with a clean format, preamble header, and comments
+where suited (and can help the grader to understand your code). Do not
+mess with your code since it may cause point deduction.
+<p>
+</ol>
+
