@@ -104,7 +104,8 @@ int main( int argc, char* argv[] )
             exit(1);
         }
         // attach to shared memory
-        if ( infos[i] = (info_t *)shmat( shmids[i], 0, 0 ) == (info_t *) -1 ) {
+        if ( ( infos[i] = (info_t *)shmat( shmids[i], 0, 0 ) ) 
+                                == (info_t *) -1 ) {
             perror( "server shmat alphabet" );
             exit(1);
         }
@@ -114,14 +115,14 @@ int main( int argc, char* argv[] )
         infos[i]->col = 1; // default starting column
         infos[i]->o_col = -1; // there is no old column yet
         infos[i]->start = 0;  // don't start the race yet
-        infos[i]->finihsing_place = -1; // race has not started yet
+        infos[i]->finishing_place = -1; // race has not started yet
         infos[i]->points = -1; // no points yet
         strcpy( infos[i]->sem_video_str, video_key_str );
 
         i++;
     }
     for ( i = 0; i < 26; i++ ) {
-        sprintf( str, "%d", shmid[i] );
+        sprintf( str, "%d", shmids[i] );
         pids[i] = fork();
         if ( pids[i] == -1 ) {
             perror( "server fork alphabet" );
@@ -196,7 +197,7 @@ int main( int argc, char* argv[] )
     }
 
     // inform client race is over
-    info_c_m->alphabet = '<';
+    info_c_m->alphabet = termination_cond;
 
     // assign client their points
     info_c->points = infos[info_c->alphabet - 64]->points;
@@ -204,7 +205,7 @@ int main( int argc, char* argv[] )
     FlashScr( sem_video );
     CursorOn( sem_video );
     printf( "Client points: %d\n", info_c->points );
-    if ( points < 21 ) {
+    if ( info_c->points < 21 ) {
         printf( "Better luck next time!\n" );
     } else {
         printf( "Nice!\n" );

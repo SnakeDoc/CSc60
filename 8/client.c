@@ -18,6 +18,7 @@ int main( int argc, char* argv[] )
     int shmid, keypoll_pid, exit_code;
     char *p;
     char *p2;
+    char str[40]; // general purpose str
     info_t *my_info;
     info_t *their_info;
     char player;

@@ -21,7 +21,7 @@ int main( int argc, char* argv[] )
 
     // attach to shared memory
     shmid = atoi( argv[1] );
-    if ( p = shmat( shmid, 0, 0 ) == (char *) -1 ) {
+    if ( ( p = shmat( shmid, 0, 0 ) ) == (char *) -1 ) {
         perror( "alphabet shmat" );
         exit(1);
     }
